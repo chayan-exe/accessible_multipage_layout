@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Accessible users table">
+  <title>Accessible Dashboard - Users</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div class="brand"><a href="index.html" aria-label="AccessBoard home">AccessBoard</a></div>
+    <nav aria-label="Primary navigation">
+      <ul class="nav-list">
+        <li><a href="index.html">Dashboard</a></li>
+        <li><a href="users.html" aria-current="page">Users</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="settings.html">Settings</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">Menu</button>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Sidebar navigation">
+      <h2>User tools</h2>
+      <nav aria-label="User navigation">
+        <ul>
+          <li><a href="#user-list">User list</a></li>
+          <li><a href="#user-info">Information</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main-content" class="main-content">
+      <section id="user-list" aria-labelledby="users-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Management</p>
+            <h1 id="users-title">Users</h1>
+          </div>
+          <button class="button" type="button" data-modal-target="add-user-modal">Add user</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption>Registered users</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Aarav Sharma</th>
+                <td>aarav@example.com</td>
+                <td>Editor</td>
+                <td>Active</td>
+              </tr>
+              <tr>
+                <th scope="row">Meera Patel</th>
+                <td>meera@example.com</td>
+                <td>Admin</td>
+                <td>Active</td>
+              </tr>
+              <tr>
+                <th scope="row">Kabir Singh</th>
+                <td>kabir@example.com</td>
+                <td>Viewer</td>
+                <td>Pending</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="user-info" aria-labelledby="info-title">
+        <h2 id="info-title">User information</h2>
+        <p>The table uses captions, column scopes, and row headers to improve screen-reader navigation.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer"><p>&copy; 2026 AccessBoard.</p></footer>
+
+  <dialog id="add-user-modal" aria-labelledby="add-user-title">
+    <div class="modal-content">
+      <h2 id="add-user-title">Add a user</h2>
+      <form id="add-user-form">
+        <fieldset>
+          <legend>User details</legend>
+          <div class="form-group">
+            <label for="user-name">Full name</label>
+            <input id="user-name" name="userName" type="text" autocomplete="name" required minlength="2">
+          </div>
+          <div class="form-group">
+            <label for="user-email">Email address</label>
+            <input id="user-email" name="userEmail" type="email" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label for="user-role">Role</label>
+            <select id="user-role" name="userRole" required>
+              <option value="">Choose a role</option>
+              <option value="viewer">Viewer</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </fieldset>
+        <div class="form-actions">
+          <button class="button" type="submit">Save user</button>
+          <button class="button secondary" type="button" data-close-modal>Cancel</button>
+        </div>
+        <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </dialog>
+</body>
+</html>

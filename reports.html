@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Accessible reports page">
+  <title>Accessible Dashboard - Reports</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div class="brand"><a href="index.html" aria-label="AccessBoard home">AccessBoard</a></div>
+    <nav aria-label="Primary navigation">
+      <ul class="nav-list">
+        <li><a href="index.html">Dashboard</a></li>
+        <li><a href="users.html">Users</a></li>
+        <li><a href="reports.html" aria-current="page">Reports</a></li>
+        <li><a href="settings.html">Settings</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">Menu</button>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Sidebar navigation">
+      <h2>Reports</h2>
+      <nav aria-label="Report navigation">
+        <ul>
+          <li><a href="#summary">Summary</a></li>
+          <li><a href="#report-table">All reports</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main-content" class="main-content">
+      <section id="summary" aria-labelledby="reports-title">
+        <p class="eyebrow">Analytics</p>
+        <h1 id="reports-title">Reports</h1>
+        <p>Review report status and basic activity information.</p>
+      </section>
+
+      <section id="report-table" aria-labelledby="table-title">
+        <h2 id="table-title">Report history</h2>
+        <div class="table-wrap">
+          <table>
+            <caption>Generated reports</caption>
+            <thead>
+              <tr>
+                <th scope="col">Report</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Created</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Monthly activity</th>
+                <td>Meera Patel</td>
+                <td>2026-09-01</td>
+                <td>Ready</td>
+              </tr>
+              <tr>
+                <th scope="row">User audit</th>
+                <td>Aarav Sharma</td>
+                <td>2026-08-29</td>
+                <td>Ready</td>
+              </tr>
+              <tr>
+                <th scope="row">Task summary</th>
+                <td>Kabir Singh</td>
+                <td>2026-08-27</td>
+                <td>Processing</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer"><p>&copy; 2026 AccessBoard.</p></footer>
+</body>
+</html>

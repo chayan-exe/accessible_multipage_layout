@@ -1,0 +1,339 @@
+/* Accessible Dashboard stylesheet */
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1d2330;
+  background: #f5f7fa;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+a {
+  color: #0645ad;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #ffbf00;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -5rem;
+  padding: 0.75rem 1rem;
+  background: #111827;
+  color: #fff;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: #111827;
+  color: #fff;
+}
+
+.brand a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list a {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.4rem 0.6rem;
+}
+
+.nav-list a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.menu-toggle {
+  margin-left: auto;
+  display: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  min-height: calc(100vh - 130px);
+}
+
+.sidebar {
+  padding: 1.5rem;
+  background: #e9edf3;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li + li {
+  margin-top: 0.5rem;
+}
+
+.main-content {
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem;
+  margin: 0 auto;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin-bottom: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border: 1px solid #ccd3dd;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.stat {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.75rem 0;
+}
+
+th,
+td {
+  border: 1px solid #cbd2dc;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+thead th {
+  background: #e9edf3;
+}
+
+.status {
+  font-weight: 700;
+}
+
+.success {
+  color: #075e28;
+}
+
+.pending {
+  color: #7a4b00;
+}
+
+.button {
+  border: 2px solid #111827;
+  border-radius: 0.45rem;
+  padding: 0.65rem 1rem;
+  background: #111827;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.button.secondary {
+  background: #fff;
+  color: #111827;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+label,
+.label-text {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+input,
+select {
+  width: 100%;
+  max-width: 520px;
+  padding: 0.7rem;
+  border: 1px solid #687386;
+  border-radius: 0.35rem;
+  background: #fff;
+  color: #1d2330;
+  font: inherit;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+fieldset {
+  border: 1px solid #aeb7c5;
+  border-radius: 0.6rem;
+  padding: 1.25rem;
+  margin: 0 0 1.5rem;
+}
+
+legend {
+  padding: 0 0.5rem;
+  font-weight: 800;
+}
+
+small {
+  display: block;
+  margin-top: 0.3rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.form-message {
+  min-height: 1.5rem;
+  font-weight: 700;
+}
+
+dialog {
+  border: 0;
+  border-radius: 0.75rem;
+  max-width: 600px;
+  width: calc(100% - 2rem);
+  padding: 0;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-content {
+  padding: 1.5rem;
+}
+
+.site-footer {
+  padding: 1.5rem 2rem;
+  background: #111827;
+  color: #fff;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-list {
+    width: 100%;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar.is-open {
+    display: block;
+  }
+
+  .main-content {
+    padding: 1.25rem;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

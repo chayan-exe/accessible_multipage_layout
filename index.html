@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Accessible multi-page admin dashboard demo">
+  <title>Accessible Dashboard - Home</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <a href="index.html" aria-label="Accessible Dashboard home">AccessBoard</a>
+    </div>
+    <nav aria-label="Primary navigation">
+      <ul class="nav-list">
+        <li><a href="index.html" aria-current="page">Dashboard</a></li>
+        <li><a href="users.html">Users</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="settings.html">Settings</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">
+      Menu
+    </button>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Sidebar navigation">
+      <h2>Quick links</h2>
+      <nav aria-label="Secondary navigation">
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#activity">Recent activity</a></li>
+          <li><a href="#help">Help</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main-content" class="main-content">
+      <section id="overview" aria-labelledby="overview-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 id="overview-title">Overview</h1>
+          </div>
+          <button class="button" type="button" data-modal-target="welcome-modal">
+            Open welcome dialog
+          </button>
+        </div>
+
+        <div class="cards" aria-label="Dashboard statistics">
+          <article class="card">
+            <h2>Users</h2>
+            <p class="stat">1,248</p>
+            <p>Registered accounts.</p>
+          </article>
+          <article class="card">
+            <h2>Reports</h2>
+            <p class="stat">86</p>
+            <p>Reports generated this month.</p>
+          </article>
+          <article class="card">
+            <h2>Tasks</h2>
+            <p class="stat">32</p>
+            <p>Tasks currently in progress.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="activity" aria-labelledby="activity-title">
+        <h2 id="activity-title">Recent activity</h2>
+        <div class="table-wrap">
+          <table>
+            <caption>Recent dashboard activity</caption>
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Action</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Aarav</th>
+                <td>Created report</td>
+                <td>2026-09-05</td>
+                <td><span class="status success">Completed</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Meera</th>
+                <td>Updated profile</td>
+                <td>2026-09-04</td>
+                <td><span class="status success">Completed</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Kabir</th>
+                <td>Submitted task</td>
+                <td>2026-09-03</td>
+                <td><span class="status pending">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="help" aria-labelledby="help-title">
+        <h2 id="help-title">Need help?</h2>
+        <p>Use the navigation to explore users, reports, and accessible settings.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 AccessBoard. Built with semantic HTML5.</p>
+  </footer>
+
+  <dialog id="welcome-modal" aria-labelledby="welcome-title">
+    <div class="modal-content">
+      <h2 id="welcome-title">Welcome</h2>
+      <p>This modal uses the native dialog element and can be operated with a keyboard.</p>
+      <button class="button" type="button" data-close-modal>Close</button>
+    </div>
+  </dialog>
+</body>
+</html>
