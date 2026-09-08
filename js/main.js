@@ -62,3 +62,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+// Dark/light theme toggle using the design-token variables.
+const themeButton = document.createElement("button");
+themeButton.type = "button";
+themeButton.className = "button secondary theme-toggle";
+themeButton.setAttribute("aria-label", "Toggle color theme");
+
+const savedTheme = localStorage.getItem("accessboard-theme");
+const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+
+const updateThemeButton = () => {
+  const dark = document.documentElement.dataset.theme === "dark";
+  themeButton.textContent = dark ? "☀ Light" : "◐ Dark";
+  themeButton.setAttribute("aria-pressed", String(dark));
+};
+
+const header = document.querySelector(".site-header");
+if (header) {
+  header.appendChild(themeButton);
+  updateThemeButton();
+  themeButton.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("accessboard-theme", next);
+    updateThemeButton();
+  });
+}
