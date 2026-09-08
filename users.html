@@ -21,6 +21,7 @@
       </ul>
     </nav>
     <button id="theme-toggle" class="button secondary" type="button" aria-label="Toggle color theme">Theme</button>
+    <button id="logout-button" class="button danger" type="button">Logout</button>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">Menu</button>
   </header>
 
@@ -56,7 +57,7 @@
                 <th scope="col">Status</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="users-body">
               <tr>
                 <th scope="row">Aarav Sharma</th>
                 <td>aarav@example.com</td>
@@ -91,7 +92,7 @@
 
   <dialog id="add-user-modal" aria-labelledby="add-user-title">
     <div class="modal-content">
-      <h2 id="add-user-title">Add a user</h2>
+      <h2 id="user-modal-title">Add a user</h2><input id="user-id" type="hidden">
       <form id="add-user-form">
         <fieldset>
           <legend>User details</legend>

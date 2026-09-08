@@ -423,3 +423,21 @@ body { background: var(--color-bg); color: var(--color-text); overflow-x: hidden
 }
 @media (min-width: 1024px) and (max-width: 1439px) { .data-item { grid-column:span 4; } }
 @media (min-width: 1440px) { .main-content { max-width:1400px; } .data-item { grid-column:span 3; } }
+
+/* Capstone application layer */
+:root { --surface-2: rgba(255,255,255,.62); --danger: #b42318; --success: #087443; }
+html[data-theme="dark"] { --surface-2: rgba(20,20,31,.62); }
+textarea { width: 100%; max-width: 520px; padding: .7rem; border: 1px solid #687386; border-radius: .35rem; background: var(--color-surface); color: var(--color-text); font: inherit; resize: vertical; }
+.button.danger { background: var(--danger); border-color: var(--danger); }
+.button.small { padding: .4rem .65rem; font-size: .875rem; }
+.card-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem; }
+.form-message.success { color: var(--success); }
+.form-message.error { color: var(--danger); }
+.error-banner { margin-bottom: .75rem; }
+.empty-state { grid-column: 1 / -1; padding: 2rem; text-align:center; }
+.section-heading.compact { margin: 1.5rem 0 1rem; }
+.auth-page { min-height:100vh; display:grid; place-items:center; padding:1rem; background:radial-gradient(circle at top, rgba(124,58,237,.2), transparent 45%), var(--color-bg); }
+.auth-shell { width:min(100%, 520px); }
+.auth-card { padding:2rem; border:1px solid var(--color-border); border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-soft); backdrop-filter:blur(var(--glass-blur)); }
+.demo-hint { margin-top:1rem; padding:.75rem; border-radius:var(--radius-sm); background:var(--surface-2); }
+@media (max-width: 767px) { .site-header .danger { order: 4; } .auth-card { padding:1.25rem; } .data-item { grid-column:auto; } }

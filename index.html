@@ -24,6 +24,7 @@
       </ul>
     </nav>
     <button id="theme-toggle" class="button secondary" type="button" aria-label="Toggle color theme">Theme</button>
+    <button id="logout-button" class="button danger" type="button">Logout</button>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">
       Menu
     </button>
@@ -86,10 +87,11 @@
             <select id="product-sort" aria-label="Sort products"><option value="default">Default</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="title">Title: A-Z</option></select>
           </label>
         </div>
-        <div id="api-error" class="error-banner" role="alert" hidden></div>
+        <div id="api-error" class="error-banner" role="alert" hidden></div><button id="retry-products" class="button secondary" type="button" hidden>Retry</button>
         <div id="product-loading" class="data-grid" aria-live="polite" aria-label="Loading products">
           <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
         </div>
+        <div class="section-heading compact"><div><h3>Catalog management</h3><p>Add, edit, or delete catalog items. Changes persist in localStorage.</p></div><button class="button" type="button" data-modal-target="add-product-modal">Add product</button></div>
         <div id="product-grid" class="data-grid" aria-live="polite"></div>
       </section>
 
@@ -134,6 +136,7 @@
         <h2 id="help-title">Need help?</h2>
         <p>Use the navigation to explore users, reports, and accessible settings.</p>
       </section>
+    <dialog id="add-product-modal" aria-labelledby="product-modal-title"><div class="modal-content"><h2 id="product-modal-title">Add product</h2><form id="add-product-form"><input id="product-id" type="hidden"><fieldset><legend>Product details</legend><div class="form-group"><label for="product-title">Title</label><input id="product-title" required minlength="2"></div><div class="form-group"><label for="product-price">Price</label><input id="product-price" type="number" min="0" step="0.01" required></div><div class="form-group"><label for="product-category-input">Category</label><input id="product-category-input" required></div><div class="form-group"><label for="product-image">Image URL</label><input id="product-image" type="url" placeholder="https://example.com/image.jpg"></div><div class="form-group"><label for="product-description">Description</label><textarea id="product-description" rows="4" required minlength="5"></textarea></div></fieldset><div class="form-actions"><button class="button" type="submit">Save product</button><button class="button secondary" type="button" data-close-modal>Cancel</button></div></form></div></dialog>
     </main>
   </div>
 

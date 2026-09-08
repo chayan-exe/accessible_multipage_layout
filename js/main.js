@@ -1,147 +1,144 @@
-// Accessible interactions: keyboard-friendly menu, native dialogs, and forms.
-document.addEventListener("DOMContentLoaded", () => {
-  const menuButton = document.querySelector(".menu-toggle");
-  const sidebar = document.querySelector("#sidebar");
+const KEYS = { products: 'accessboard_products_v2', theme: 'accessboard_theme', auth: 'accessboard_auth_v1', users: 'accessboard_users_v1', settings: 'accessboard_settings_v1' };
+const API_URL = 'https://fakestoreapi.com/products';
+const CACHE_TTL = 10 * 60 * 1000;
 
-  if (menuButton && sidebar) {
-    menuButton.addEventListener("click", () => {
-      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-      menuButton.setAttribute("aria-expanded", String(!isOpen));
-      sidebar.classList.toggle("is-open", !isOpen);
-    });
-  }
+const seedUsers = [
+  { id: 1, name: 'Aarav Sharma', email: 'aarav@example.com', role: 'Editor', status: 'Active' },
+  { id: 2, name: 'Meera Patel', email: 'meera@example.com', role: 'Admin', status: 'Active' },
+  { id: 3, name: 'Kabir Singh', email: 'kabir@example.com', role: 'Viewer', status: 'Pending' }
+];
 
-  document.querySelectorAll("[data-modal-target]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const modal = document.getElementById(button.dataset.modalTarget);
-      if (modal) {
-        modal.showModal();
-      }
-    });
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+function safeJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function saveJSON(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function escapeHTML(value) { return String(value).replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c])); }
+function showMessage(el, message, type = 'success') { if (!el) return; el.textContent = message; el.className = `form-message ${type}`; }
+
+function initTheme() {
+  const root = document.documentElement;
+  const saved = localStorage.getItem(KEYS.theme);
+  if (saved === 'dark' || saved === 'light') root.dataset.theme = saved;
+  $('#theme-toggle')?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next; localStorage.setItem(KEYS.theme, next);
   });
+}
 
-  document.querySelectorAll("[data-close-modal]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const modal = button.closest("dialog");
-      if (modal) {
-        modal.close();
-      }
-    });
+function initSidebar() {
+  $$('.menu-toggle').forEach(button => button.addEventListener('click', () => {
+    const sidebar = document.getElementById(button.getAttribute('aria-controls'));
+    if (!sidebar) return;
+    const open = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!open)); sidebar.classList.toggle('is-open', !open);
+  }));
+}
+
+function initModals() {
+  $$('[data-modal-target]').forEach(button => button.addEventListener('click', () => document.getElementById(button.dataset.modalTarget)?.showModal()));
+  $$('[data-close-modal]').forEach(button => button.addEventListener('click', () => button.closest('dialog')?.close()));
+}
+
+function initAuth() {
+  const form = $('#login-form');
+  if (!form) return;
+  const existing = safeJSON(KEYS.auth, null);
+  if (existing?.authenticated) { window.location.href = 'index.html'; return; }
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const username = $('#login-username').value.trim();
+    const password = $('#login-password').value;
+    const message = $('#login-message');
+    if (username === 'admin' && password === 'admin123') {
+      saveJSON(KEYS.auth, { authenticated: true, username, loginAt: Date.now() });
+      window.location.href = 'index.html';
+    } else showMessage(message, 'Invalid demo credentials. Use admin / admin123.', 'error');
   });
+}
 
-  const addUserForm = document.querySelector("#add-user-form");
-  const formMessage = document.querySelector("#form-message");
+function requireAuth() {
+  if ($('#login-form')) return true;
+  const auth = safeJSON(KEYS.auth, null);
+  if (!auth?.authenticated) { window.location.href = 'login.html'; return false; }
+  $('#logout-button')?.addEventListener('click', () => { localStorage.removeItem(KEYS.auth); window.location.href = 'login.html'; });
+  return true;
+}
 
-  if (addUserForm && formMessage) {
-    addUserForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      if (!addUserForm.checkValidity()) {
-        addUserForm.reportValidity();
-        return;
-      }
-
-      formMessage.textContent = "User details validated successfully.";
-      addUserForm.reset();
-    });
-  }
-
-  const settingsForm = document.querySelector("#settings-form");
-  const settingsMessage = document.querySelector("#settings-message");
-
-  if (settingsForm && settingsMessage) {
-    settingsForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      if (!settingsForm.checkValidity()) {
-        settingsForm.reportValidity();
-        return;
-      }
-
-      settingsMessage.textContent = "Settings validated successfully.";
-    });
-  }
-});
-
-// REST API data module: async/await, search/category/sort, localStorage cache, skeletons and errors.
-const PRODUCT_CACHE_KEY = "accessboard_products_v1";
-const PRODUCT_CACHE_TTL = 1000 * 60 * 10;
-
-async function loadProducts() {
-  const grid = document.querySelector("#product-grid");
-  const loading = document.querySelector("#product-loading");
-  const error = document.querySelector("#api-error");
-  const search = document.querySelector("#product-search");
-  const category = document.querySelector("#product-category");
-  const sort = document.querySelector("#product-sort");
-  if (!grid || !loading || !error || !search || !category || !sort) return;
-
+function initProducts() {
+  const grid = $('#product-grid'); if (!grid) return;
+  const loading = $('#product-loading'), error = $('#api-error');
+  const search = $('#product-search'), category = $('#product-category'), sort = $('#product-sort');
+  const addModal = $('#add-product-modal'), addForm = $('#add-product-form');
   let products = [];
-  const cached = localStorage.getItem(PRODUCT_CACHE_KEY);
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < PRODUCT_CACHE_TTL && Array.isArray(parsed.data)) products = parsed.data;
-    } catch { localStorage.removeItem(PRODUCT_CACHE_KEY); }
-  }
 
   const render = () => {
-    const query = search.value.trim().toLowerCase();
-    let visible = products.filter(p =>
-      (category.value === "all" || p.category === category.value) &&
-      `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(query)
-    );
-    if (sort.value === "price-asc") visible.sort((a,b) => a.price - b.price);
-    if (sort.value === "price-desc") visible.sort((a,b) => b.price - a.price);
-    if (sort.value === "title") visible.sort((a,b) => a.title.localeCompare(b.title));
-    grid.innerHTML = visible.length ? visible.map(p => `
-      <article class="data-item">
-        <img src="${p.image}" alt="${escapeHTML(p.title)}" loading="lazy">
-        <p class="eyebrow">${escapeHTML(p.category)}</p>
-        <h3>${escapeHTML(p.title)}</h3>
-        <p>${escapeHTML(p.description.slice(0, 110))}...</p>
-        <strong>$${Number(p.price).toFixed(2)}</strong>
-      </article>`).join("") : "<p>No matching products found.</p>";
+    const q = search.value.trim().toLowerCase();
+    let visible = products.filter(p => (category.value === 'all' || p.category === category.value) && `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(q));
+    if (sort.value === 'price-asc') visible.sort((a,b) => a.price-b.price);
+    if (sort.value === 'price-desc') visible.sort((a,b) => b.price-a.price);
+    if (sort.value === 'title') visible.sort((a,b) => a.title.localeCompare(b.title));
+    grid.innerHTML = visible.length ? visible.map(p => `<article class="data-item"><img src="${escapeHTML(p.image)}" alt="${escapeHTML(p.title)}" loading="lazy"><p class="eyebrow">${escapeHTML(p.category)}</p><h3>${escapeHTML(p.title)}</h3><p>${escapeHTML(p.description.slice(0,110))}${p.description.length > 110 ? '...' : ''}</p><strong>$${Number(p.price).toFixed(2)}</strong><div class="card-actions"><button class="button small" type="button" data-edit-product="${p.id}">Edit</button><button class="button danger small" type="button" data-delete-product="${p.id}">Delete</button></div></article>`).join('') : '<p class="empty-state">No matching products found.</p>';
   };
 
-  if (!products.length) {
-    try {
-      const response = await fetch("https://fakestoreapi.com/products");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      products = await response.json();
-      localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({timestamp: Date.now(), data: products}));
-    } catch (err) {
-      error.textContent = "We couldn't load the live product data. Please check your connection and try again.";
-      error.hidden = false;
-      loading.hidden = true;
-      return;
+  const hydrate = async () => {
+    const cached = safeJSON(KEYS.products, null);
+    if (cached?.timestamp && Date.now() - cached.timestamp < CACHE_TTL && Array.isArray(cached.data)) products = cached.data;
+    if (!products.length) {
+      try {
+        const response = await fetch(API_URL, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        products = await response.json(); saveJSON(KEYS.products, { timestamp: Date.now(), data: products });
+      } catch {
+        error.hidden = false; error.textContent = 'Live catalog could not be loaded. Check your connection and use Retry.';
+        $('#retry-products')?.removeAttribute('hidden'); loading.hidden = true; return;
+      }
     }
-  }
+    const cats = [...new Set(products.map(p => p.category))].sort();
+    cats.forEach(c => { if (![...category.options].some(o => o.value === c)) category.add(new Option(c, c)); });
+    loading.hidden = true; error.hidden = true; render();
+  };
 
-  [...new Set(products.map(p => p.category))].sort().forEach(c => {
-    const option = document.createElement("option"); option.value = c; option.textContent = c; category.append(option);
+  hydrate();
+  [search, category, sort].forEach(el => el.addEventListener('input', render));
+  $('#retry-products')?.addEventListener('click', () => { localStorage.removeItem(KEYS.products); loading.hidden = false; hydrate(); });
+
+  grid.addEventListener('click', e => {
+    const edit = e.target.closest('[data-edit-product]'); const del = e.target.closest('[data-delete-product]');
+    if (edit) {
+      const p = products.find(x => String(x.id) === edit.dataset.editProduct); if (!p) return;
+      $('#product-id').value = p.id; $('#product-title').value = p.title; $('#product-price').value = p.price; $('#product-category-input').value = p.category; $('#product-image').value = p.image; $('#product-description').value = p.description; $('#product-modal-title').textContent = 'Edit product'; addModal.showModal();
+    }
+    if (del) {
+      const id = Number(del.dataset.deleteProduct); products = products.filter(p => p.id !== id); saveJSON(KEYS.products, { timestamp: Date.now(), data: products }); render();
+    }
   });
-  loading.hidden = true;
+
+  addForm?.addEventListener('submit', e => {
+    e.preventDefault(); if (!addForm.checkValidity()) { addForm.reportValidity(); return; }
+    const id = Number($('#product-id').value) || Date.now();
+    const item = { id, title: $('#product-title').value.trim(), price: Number($('#product-price').value), category: $('#product-category-input').value.trim(), image: $('#product-image').value.trim() || 'https://placehold.co/600x400?text=Product', description: $('#product-description').value.trim(), rating: { rate: 0, count: 0 } };
+    const index = products.findIndex(p => p.id === id); if (index >= 0) products[index] = item; else products.unshift(item);
+    saveJSON(KEYS.products, { timestamp: Date.now(), data: products }); render(); addForm.reset(); $('#product-id').value = ''; $('#product-modal-title').textContent = 'Add product'; addModal.close();
+  });
+}
+
+function initUsers() {
+  const tbody = $('#users-body'); if (!tbody) return;
+  let users = safeJSON(KEYS.users, seedUsers); saveJSON(KEYS.users, users);
+  const render = () => { tbody.innerHTML = users.map(u => `<tr><th scope="row">${escapeHTML(u.name)}</th><td>${escapeHTML(u.email)}</td><td>${escapeHTML(u.role)}</td><td>${escapeHTML(u.status)}</td><td><button class="button small" data-edit-user="${u.id}" type="button">Edit</button> <button class="button danger small" data-delete-user="${u.id}" type="button">Delete</button></td></tr>`).join(''); };
   render();
-  [search, category, sort].forEach(el => el.addEventListener("input", render));
-  [category, sort].forEach(el => el.addEventListener("change", render));
+  const form = $('#add-user-form'); form?.addEventListener('submit', e => { e.preventDefault(); if (!form.checkValidity()) { form.reportValidity(); return; } const id = Number($('#user-id').value) || Date.now(); const user = { id, name: $('#user-name').value.trim(), email: $('#user-email').value.trim(), role: $('#user-role').value, status: 'Active' }; const idx = users.findIndex(u => u.id === id); if (idx >= 0) users[idx] = user; else users.push(user); saveJSON(KEYS.users, users); render(); form.reset(); $('#user-id').value = ''; $('#user-modal-title').textContent = 'Add a user'; $('#add-user-modal').close(); });
+  tbody.addEventListener('click', e => { const edit = e.target.closest('[data-edit-user]'); const del = e.target.closest('[data-delete-user]'); if (edit) { const u = users.find(x => String(x.id) === edit.dataset.editUser); $('#user-id').value=u.id; $('#user-name').value=u.name; $('#user-email').value=u.email; $('#user-role').value=u.role.toLowerCase(); $('#user-modal-title').textContent='Edit user'; $('#add-user-modal').showModal(); } if (del) { users = users.filter(u => String(u.id) !== del.dataset.deleteUser); saveJSON(KEYS.users, users); render(); } });
 }
 
-function escapeHTML(value) {
-  return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+function initSettings() {
+  const form = $('#settings-form'); if (!form) return; const settings = safeJSON(KEYS.settings, {}); ['full-name','email','website','language'].forEach(id => { if (settings[id]) $(`#${id}`).value = settings[id]; }); if (typeof settings.notifications === 'boolean') $('#notifications').checked = settings.notifications;
+  form.addEventListener('submit', e => { e.preventDefault(); if (!form.checkValidity()) { form.reportValidity(); return; } const data = Object.fromEntries(new FormData(form)); data.notifications = $('#notifications').checked; saveJSON(KEYS.settings, data); showMessage($('#settings-message'), 'Settings saved locally.'); });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadProducts();
-  const root = document.documentElement;
-  const savedTheme = localStorage.getItem("accessboard_theme");
-  if (savedTheme) root.dataset.theme = savedTheme;
-});
-
-document.addEventListener("click", (event) => {
-  if (event.target.id !== "theme-toggle") return;
-  const root = document.documentElement;
-  const next = root.dataset.theme === "dark" ? "light" : "dark";
-  root.dataset.theme = next;
-  localStorage.setItem("accessboard_theme", next);
-});
+function init() { initTheme(); initSidebar(); initModals(); initAuth(); if (!requireAuth()) return; initProducts(); initUsers(); initSettings(); }
+document.addEventListener('DOMContentLoaded', init);
