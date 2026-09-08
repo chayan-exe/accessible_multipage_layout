@@ -63,31 +63,85 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// REST API data module: async/await, search/category/sort, localStorage cache, skeletons and errors.
+const PRODUCT_CACHE_KEY = "accessboard_products_v1";
+const PRODUCT_CACHE_TTL = 1000 * 60 * 10;
 
-// Dark/light theme toggle using the design-token variables.
-const themeButton = document.createElement("button");
-themeButton.type = "button";
-themeButton.className = "button secondary theme-toggle";
-themeButton.setAttribute("aria-label", "Toggle color theme");
+async function loadProducts() {
+  const grid = document.querySelector("#product-grid");
+  const loading = document.querySelector("#product-loading");
+  const error = document.querySelector("#api-error");
+  const search = document.querySelector("#product-search");
+  const category = document.querySelector("#product-category");
+  const sort = document.querySelector("#product-sort");
+  if (!grid || !loading || !error || !search || !category || !sort) return;
 
-const savedTheme = localStorage.getItem("accessboard-theme");
-const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+  let products = [];
+  const cached = localStorage.getItem(PRODUCT_CACHE_KEY);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < PRODUCT_CACHE_TTL && Array.isArray(parsed.data)) products = parsed.data;
+    } catch { localStorage.removeItem(PRODUCT_CACHE_KEY); }
+  }
 
-const updateThemeButton = () => {
-  const dark = document.documentElement.dataset.theme === "dark";
-  themeButton.textContent = dark ? "☀ Light" : "◐ Dark";
-  themeButton.setAttribute("aria-pressed", String(dark));
-};
+  const render = () => {
+    const query = search.value.trim().toLowerCase();
+    let visible = products.filter(p =>
+      (category.value === "all" || p.category === category.value) &&
+      `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(query)
+    );
+    if (sort.value === "price-asc") visible.sort((a,b) => a.price - b.price);
+    if (sort.value === "price-desc") visible.sort((a,b) => b.price - a.price);
+    if (sort.value === "title") visible.sort((a,b) => a.title.localeCompare(b.title));
+    grid.innerHTML = visible.length ? visible.map(p => `
+      <article class="data-item">
+        <img src="${p.image}" alt="${escapeHTML(p.title)}" loading="lazy">
+        <p class="eyebrow">${escapeHTML(p.category)}</p>
+        <h3>${escapeHTML(p.title)}</h3>
+        <p>${escapeHTML(p.description.slice(0, 110))}...</p>
+        <strong>$${Number(p.price).toFixed(2)}</strong>
+      </article>`).join("") : "<p>No matching products found.</p>";
+  };
 
-const header = document.querySelector(".site-header");
-if (header) {
-  header.appendChild(themeButton);
-  updateThemeButton();
-  themeButton.addEventListener("click", () => {
-    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    localStorage.setItem("accessboard-theme", next);
-    updateThemeButton();
+  if (!products.length) {
+    try {
+      const response = await fetch("https://fakestoreapi.com/products");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      products = await response.json();
+      localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({timestamp: Date.now(), data: products}));
+    } catch (err) {
+      error.textContent = "We couldn't load the live product data. Please check your connection and try again.";
+      error.hidden = false;
+      loading.hidden = true;
+      return;
+    }
+  }
+
+  [...new Set(products.map(p => p.category))].sort().forEach(c => {
+    const option = document.createElement("option"); option.value = c; option.textContent = c; category.append(option);
   });
+  loading.hidden = true;
+  render();
+  [search, category, sort].forEach(el => el.addEventListener("input", render));
+  [category, sort].forEach(el => el.addEventListener("change", render));
 }
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadProducts();
+  const root = document.documentElement;
+  const savedTheme = localStorage.getItem("accessboard_theme");
+  if (savedTheme) root.dataset.theme = savedTheme;
+});
+
+document.addEventListener("click", (event) => {
+  if (event.target.id !== "theme-toggle") return;
+  const root = document.documentElement;
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
+  root.dataset.theme = next;
+  localStorage.setItem("accessboard_theme", next);
+});

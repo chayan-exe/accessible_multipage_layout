@@ -23,6 +23,7 @@
         <li><a href="settings.html">Settings</a></li>
       </ul>
     </nav>
+    <button id="theme-toggle" class="button secondary" type="button" aria-label="Toggle color theme">Theme</button>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">
       Menu
     </button>
@@ -69,6 +70,27 @@
             <p>Tasks currently in progress.</p>
           </article>
         </div>
+      </section>
+
+      <section id="products" aria-labelledby="products-title">
+        <h2 id="products-title">Live product data</h2>
+        <p>Data is loaded from a public REST API. Search, categories, and sorting update instantly.</p>
+        <div class="data-toolbar">
+          <label>Search products
+            <input id="product-search" type="search" placeholder="Search products..." aria-label="Search products">
+          </label>
+          <label>Category
+            <select id="product-category" aria-label="Filter by category"><option value="all">All categories</option></select>
+          </label>
+          <label>Sort
+            <select id="product-sort" aria-label="Sort products"><option value="default">Default</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="title">Title: A-Z</option></select>
+          </label>
+        </div>
+        <div id="api-error" class="error-banner" role="alert" hidden></div>
+        <div id="product-loading" class="data-grid" aria-live="polite" aria-label="Loading products">
+          <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+        </div>
+        <div id="product-grid" class="data-grid" aria-live="polite"></div>
       </section>
 
       <section id="activity" aria-labelledby="activity-title">
